@@ -7,11 +7,26 @@
 
 #include "shader.h"
 #include "stb_image/stb_image.h"
+#include "camera.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
 static void GLAPIENTRY errorOccurredGL(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
 	const GLchar* message, const void* userParam);
+
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+
+unsigned int scr_width = 800;
+unsigned int scr_height = 600;
+
+// Camera
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+
+float lastX = scr_height / 2.0f, lastY = scr_width / 2.0f;
+
 
 int main() {
 	
@@ -21,7 +36,7 @@ int main() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// creating window object
-	GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(scr_width, scr_height, "OpenGL", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create window" << std::endl;
@@ -38,11 +53,16 @@ int main() {
 	std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
 	std::cout << glGetString(GL_VERSION) << std::endl;
 	
+	//glfw Cursor settings
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
+
 	// Error checking
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(errorOccurredGL, nullptr);
 
-	glViewport(0, 0, 800, 600);
+	glViewport(0, 0, scr_width, scr_height);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	
 	int nrAttributes;
@@ -185,6 +205,7 @@ int main() {
 	glUniform1i(glGetUniformLocation(shaders.ID, "texture1"), 0); // this is the same as doing it with class as below
 	shaders.setInt("texture2", 1);
 
+
 	// Model-View-Projection matrices
 	glm::mat4 modelRot = glm::mat4(1.0f);
 	//model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f)); //rotating around x so its "laying on floor"
@@ -192,9 +213,7 @@ int main() {
 	//glm::mat4 view = glm::mat4(1.0f);
 	//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f)); //moving camera towards object (we move scene in opposite direction)
 
-	glm::mat4 projection;
-	projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-
+	
 	// depth testing
 	glEnable(GL_DEPTH_TEST);
 
@@ -206,9 +225,18 @@ int main() {
 		processInput(window);
 
 		//transformations
-		glm::mat4 view = glm::mat4(1.0f);
-		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -6.0f)); //moving camera away from object (we move scene in opposite direction)
-		view = glm::rotate(view, (float)glfwGetTime() * glm::radians(55.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		const float radius = 5.0f;
+		float camX = sin(glfwGetTime()) * radius;
+		float camY = cos(glfwGetTime()) * radius;
+		glm::mat4 view = camera.getViewMatrix();
+		
+		//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -6.0f)); //moving camera away from object (we move scene in opposite direction)
+		//view = glm::rotate(view, (float)glfwGetTime() * glm::radians(55.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+
+		glm::mat4 projection;
+		projection = glm::perspective(glm::radians(camera.Zoom), 
+			static_cast<float>(scr_width) / static_cast<float>(scr_height), 0.1f, 100.0f);
 
 		// Sending MVP matricies
 		int modelLoc = glGetUniformLocation(shaders.ID, "model");
@@ -257,6 +285,11 @@ int main() {
 
 
 		glBindVertexArray(0);
+
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
 		// show
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -271,6 +304,8 @@ int main() {
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+	scr_width = width;
+	scr_height = height;
 }
 
 void processInput(GLFWwindow* window)
@@ -279,7 +314,42 @@ void processInput(GLFWwindow* window)
 	{
 		glfwSetWindowShouldClose(window, true);
 	}
+
+	const float cameraSpeed = 2.5f * deltaTime;
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		camera.processKeyboard(FORWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		camera.processKeyboard(BACKWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		camera.processKeyboard(LEFT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		camera.processKeyboard(RIGHT, deltaTime);
+	// up/down
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		camera.processKeyboard(UP, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+		camera.processKeyboard(DOWN, deltaTime);
 }
+
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) 
+{
+	float xpos = static_cast<float>(xposIn);
+	float ypos = static_cast<float>(yposIn);
+	
+	float xOffset = xpos - lastX;
+	float yOffset = lastY - ypos; // reversed since y-coords range from bottom to top
+	lastX = xpos;
+	lastY = ypos;
+
+	camera.processMouseMovement(xOffset, yOffset, GL_TRUE);
+
+}
+
+void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
+{
+	camera.processMouseScroll(yOffset);
+}
+
 
 static void GLAPIENTRY errorOccurredGL(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
 	const GLchar* message, const void* userParam)
