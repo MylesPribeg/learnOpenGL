@@ -45,5 +45,6 @@
   <ItemGroup>
     <None Include="fragShader.fs" />
     <None Include="vertShader.vs" />
+    <None Include="lightFrag.fs" />
   </ItemGroup>
 </Project>

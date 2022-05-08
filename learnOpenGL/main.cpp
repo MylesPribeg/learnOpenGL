@@ -9,6 +9,8 @@
 #include "stb_image/stb_image.h"
 #include "camera.h"
 
+int main();
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -19,6 +21,7 @@ static void GLAPIENTRY errorOccurredGL(GLenum source, GLenum type, GLuint id, GL
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+// Initial settings
 unsigned int scr_width = 800;
 unsigned int scr_height = 600;
 
@@ -26,6 +29,9 @@ unsigned int scr_height = 600;
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 float lastX = scr_height / 2.0f, lastY = scr_width / 2.0f;
+
+// Scene
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 
 int main() {
@@ -69,6 +75,7 @@ int main() {
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
 	std::cout << "Maximum number of vertex attributes supported: " << nrAttributes << std::endl;
 
+#if 0
 	// loading textures
 	int width, height, nrChannels;
 	stbi_set_flip_vertically_on_load(true);
@@ -118,56 +125,58 @@ int main() {
 	}
 	stbi_image_free(data);
 
-
+#endif
 
 	// SHADERS
 	Shader shaders("vertShader.vs", "fragShader.fs");
+	Shader lightShader("vertShader.vs", "lightFrag.fs");
 
 	// vertices
 	float vertices[] = {
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
 
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
 	};
-
+	
+	/*
 	glm::vec3 cubePositions[] = {
 		glm::vec3( 0.0f, 0.0f, 0.0f),
 		glm::vec3( 2.0f,  5.0f, -15.0f),
@@ -179,7 +188,7 @@ int main() {
 		glm::vec3( 1.5f,  2.0f, -2.5f),
 		glm::vec3( 1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f)
-	};
+	};*/
 
 
 	unsigned int VAO;
@@ -192,28 +201,23 @@ int main() {
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 		
 	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // telling how to interpret vertex data
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); // telling how to interpret vertex data
 	glEnableVertexAttribArray(0);
 
-	// texture coord attribute
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	// normals attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+
+	unsigned int lightVAO;
+	glGenVertexArrays(1, &lightVAO);
+	glBindVertexArray(lightVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); 
+	glEnableVertexAttribArray(0);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	shaders.use();
-	glUniform1i(glGetUniformLocation(shaders.ID, "texture1"), 0); // this is the same as doing it with class as below
-	shaders.setInt("texture2", 1);
-
-
-	// Model-View-Projection matrices
-	glm::mat4 modelRot = glm::mat4(1.0f);
-	//model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f)); //rotating around x so its "laying on floor"
-
-	//glm::mat4 view = glm::mat4(1.0f);
-	//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f)); //moving camera towards object (we move scene in opposite direction)
-
-	
 	// depth testing
 	glEnable(GL_DEPTH_TEST);
 
@@ -224,67 +228,72 @@ int main() {
 		// input
 		processInput(window);
 
+		// render
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+#if 0
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture1);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture2);
+#endif
+		glBindVertexArray(VAO);
+
+
 		//transformations
-		const float radius = 5.0f;
-		float camX = sin(glfwGetTime()) * radius;
-		float camY = cos(glfwGetTime()) * radius;
+
 		glm::mat4 view = camera.getViewMatrix();
 		
-		//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -6.0f)); //moving camera away from object (we move scene in opposite direction)
-		//view = glm::rotate(view, (float)glfwGetTime() * glm::radians(55.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
 
 		glm::mat4 projection;
 		projection = glm::perspective(glm::radians(camera.Zoom), 
 			static_cast<float>(scr_width) / static_cast<float>(scr_height), 0.1f, 100.0f);
 
+		//moving light
+		lightPos = glm::vec3(1.0f + cos(glfwGetTime()), 1.0, 1.0f + sin(glfwGetTime()));
+		
+		// cube 1
+
+		glm::mat4 model = glm::mat4(1.0f);
+		shaders.use(); //must use them before setting uniforms
+		shaders.setVec3("viewPos", camera.Position);
+		shaders.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+		shaders.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+		shaders.setVec3("lightPos", lightPos);
+
+
 		// Sending MVP matricies
 		int modelLoc = glGetUniformLocation(shaders.ID, "model");
-		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		int viewLoc = glGetUniformLocation(shaders.ID, "view");
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		int projLoc = glGetUniformLocation(shaders.ID, "projection");
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-		// render
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture1);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture2);
-
 		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
-		for (int i = 0; i < 10; i++) 
-		{
-			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[i]);
+		// light cube
 
-
-			if (i % 3 == 0) 
-			{
-				model = glm::rotate(model,(float)glfwGetTime()* glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-
-				glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-			}
-			else
-			{
-				float angle = 20.0f * i;
-				model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-				glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-			}
-
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
-		
-
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		lightShader.use();
 
 
-		glBindVertexArray(0);
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, lightPos);
+		model = glm::scale(model, glm::vec3(0.2f));
+
+		modelLoc = glGetUniformLocation(lightShader.ID, "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		viewLoc = glGetUniformLocation(lightShader.ID, "view");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		projLoc = glGetUniformLocation(lightShader.ID, "projection");
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+		glBindVertexArray(lightVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
 
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
