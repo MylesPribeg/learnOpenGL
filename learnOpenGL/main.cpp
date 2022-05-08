@@ -257,10 +257,27 @@ int main() {
 
 		glm::mat4 model = glm::mat4(1.0f);
 		shaders.use(); //must use them before setting uniforms
+		shaders.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+		shaders.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+		shaders.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
+		shaders.setFloat("material.shininess", 32.0f);
+
+		float timeVar0to1 = (sin(glfwGetTime()) + 1) / 2;
+
+		//(sin(glfwGetTime() + 3.14) + 1) / 2,
+
+		glm::vec3 lightColor((sin(glfwGetTime() + 1.7) +1) / 2, 
+			(sin(glfwGetTime() + 3.14) + 1) / 2, 
+			(sin((glfwGetTime()) + 1) / 2));
+
+		shaders.setVec3("light.position", lightPos);
+		shaders.setVec3("light.ambient", lightColor * glm::vec3(0.2f));
+		shaders.setVec3("light.diffuse", lightColor);
+		shaders.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+
 		shaders.setVec3("viewPos", camera.Position);
 		shaders.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
 		shaders.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-		shaders.setVec3("lightPos", lightPos);
 
 
 		// Sending MVP matricies
@@ -277,6 +294,7 @@ int main() {
 		// light cube
 
 		lightShader.use();
+		lightShader.setVec3("lightColor", lightColor);
 
 
 		model = glm::mat4(1.0f);
