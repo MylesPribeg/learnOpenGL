@@ -43,8 +43,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="fragShader.fs" />
-    <None Include="vertShader.vs" />
-    <None Include="lightFrag.fs" />
+    <None Include="lighting.frag" />
+    <None Include="vertShader.vert" />
+    <None Include="light.frag" />
   </ItemGroup>
 </Project>

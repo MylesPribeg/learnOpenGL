@@ -79,12 +79,13 @@ int main() {
 
 	// loading textures
 	unsigned int diffuseTex = loadTexture("images/container2.png");
-	unsigned int specularTex = loadTexture("images/container2_specular.png");
+	unsigned int specularTex = loadTexture("images/lighting_maps_specular_color.png");
+	unsigned int emissionTex = loadTexture("images/matrix.jpg");
 
 
 	// SHADERS
-	Shader shaders("vertShader.vs", "fragShader.fs");
-	Shader lightShader("vertShader.vs", "lightFrag.fs");
+	Shader shaders("vertShader.vert", "lighting.frag");
+	Shader lightShader("vertShader.vert", "light.frag");
 
 	// vertices
 	float vertices[] = {
@@ -216,12 +217,15 @@ int main() {
 		shaders.use(); //must use them before setting uniforms
 		shaders.setInt("material.diffuse", 0);
 		shaders.setInt("material.specular", 1);
+		shaders.setInt("material.emissive", 2);
 		shaders.setFloat("material.shininess", 128.0f);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, diffuseTex);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, specularTex);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, emissionTex);
 
 		//float timeVar0to1 = (sin(glfwGetTime()) + 1) / 2;
 
@@ -237,7 +241,8 @@ int main() {
 		shaders.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
 
 		shaders.setVec3("viewPos", camera.Position);
-		//shaders.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+		
+		shaders.setFloat("timeVar", glfwGetTime());
 
 
 		// Sending MVP matricies
@@ -366,8 +371,8 @@ unsigned int loadTexture(const char* path)
 		glGenerateMipmap(GL_TEXTURE_2D);
 
 		// setting texture wrapping/filtering on currently bound texture object
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		
