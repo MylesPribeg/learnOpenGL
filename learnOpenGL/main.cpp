@@ -222,8 +222,10 @@ int main() {
 		glBindTexture(GL_TEXTURE_2D, diffuseTex);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, specularTex);
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, emissionTex);
+		
+		// EMMISIVE TEXTURE DISABLED TO BETTER SEE EFFECTS OF POINT LIGHT
+		//glActiveTexture(GL_TEXTURE2);
+		//glBindTexture(GL_TEXTURE_2D, emissionTex);
 
 		//float timeVar0to1 = (sin(glfwGetTime()) + 1) / 2;
 
@@ -233,10 +235,14 @@ int main() {
 
 		glm::vec3 lightColor(1.0);
 
-		shaders.setVec3("light.direction", -0.2f, -1.0f, -0.3f);
+		shaders.setVec3("light.position", lightPos);
 		shaders.setVec3("light.ambient", lightColor * glm::vec3(0.2f));
 		shaders.setVec3("light.diffuse", lightColor);
 		shaders.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+		shaders.setFloat("light.constant", 1.0f);
+		shaders.setFloat("light.linear", 0.09f);
+		shaders.setFloat("light.quadratic", 0.032f);
+
 
 		shaders.setVec3("viewPos", camera.Position);
 		
@@ -265,7 +271,7 @@ int main() {
 
 
 		// light cube
-		/*
+		
 		lightShader.use();
 		lightShader.setVec3("lightColor", lightColor + glm::vec3(0.2f));
 
@@ -276,14 +282,14 @@ int main() {
 
 		int modelLoc = glGetUniformLocation(lightShader.ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		int viewLoc = glGetUniformLocation(lightShader.ID, "view");
+		viewLoc = glGetUniformLocation(lightShader.ID, "view");
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		int projLoc = glGetUniformLocation(lightShader.ID, "projection");
+		projLoc = glGetUniformLocation(lightShader.ID, "projection");
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 		glBindVertexArray(lightVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-		*/
+		
 		// show
 		glfwSwapBuffers(window);
 		glfwPollEvents();
