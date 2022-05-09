@@ -79,7 +79,7 @@ int main() {
 
 	// loading textures
 	unsigned int diffuseTex = loadTexture("images/container2.png");
-	unsigned int specularTex = loadTexture("images/lighting_maps_specular_color.png");
+	unsigned int specularTex = loadTexture("images/container2_specular.png");
 	unsigned int emissionTex = loadTexture("images/matrix.jpg");
 
 
@@ -133,7 +133,7 @@ int main() {
 		   -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
 	};
 	
-	/*
+	
 	glm::vec3 cubePositions[] = {
 		glm::vec3( 0.0f, 0.0f, 0.0f),
 		glm::vec3( 2.0f,  5.0f, -15.0f),
@@ -145,7 +145,7 @@ int main() {
 		glm::vec3( 1.5f,  2.0f, -2.5f),
 		glm::vec3( 1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f)
-	};*/
+	};
 
 
 	unsigned int VAO;
@@ -212,8 +212,6 @@ int main() {
 		
 		// cube 1
 
-
-		glm::mat4 model = glm::mat4(1.0f);
 		shaders.use(); //must use them before setting uniforms
 		shaders.setInt("material.diffuse", 0);
 		shaders.setInt("material.specular", 1);
@@ -235,7 +233,7 @@ int main() {
 
 		glm::vec3 lightColor(1.0);
 
-		shaders.setVec3("light.position", lightPos);
+		shaders.setVec3("light.direction", -0.2f, -1.0f, -0.3f);
 		shaders.setVec3("light.ambient", lightColor * glm::vec3(0.2f));
 		shaders.setVec3("light.diffuse", lightColor);
 		shaders.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
@@ -244,38 +242,48 @@ int main() {
 		
 		shaders.setFloat("timeVar", glfwGetTime());
 
-
-		// Sending MVP matricies
-		int modelLoc = glGetUniformLocation(shaders.ID, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		// sending VP matricies
 		int viewLoc = glGetUniformLocation(shaders.ID, "view");
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		int projLoc = glGetUniformLocation(shaders.ID, "projection");
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		for (int i = 0; i < 10; i++)
+		{
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			model = glm::rotate(model, glm::radians(20.0f * i), glm::vec3(1.0f, 0.3f, 0.5f));
+
+			// Sending M matricies
+			int modelLoc = glGetUniformLocation(shaders.ID, "model");
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+			glBindVertexArray(VAO);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		}
+
 
 		// light cube
-
+		/*
 		lightShader.use();
 		lightShader.setVec3("lightColor", lightColor + glm::vec3(0.2f));
 
 
-		model = glm::mat4(1.0f);
+		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, lightPos);
 		model = glm::scale(model, glm::vec3(0.2f));
 
-		modelLoc = glGetUniformLocation(lightShader.ID, "model");
+		int modelLoc = glGetUniformLocation(lightShader.ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		viewLoc = glGetUniformLocation(lightShader.ID, "view");
+		int viewLoc = glGetUniformLocation(lightShader.ID, "view");
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		projLoc = glGetUniformLocation(lightShader.ID, "projection");
+		int projLoc = glGetUniformLocation(lightShader.ID, "projection");
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 		glBindVertexArray(lightVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-
+		*/
 		// show
 		glfwSwapBuffers(window);
 		glfwPollEvents();
