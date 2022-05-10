@@ -224,8 +224,8 @@ int main() {
 		glBindTexture(GL_TEXTURE_2D, specularTex);
 		
 		// EMMISIVE TEXTURE DISABLED TO BETTER SEE EFFECTS OF POINT LIGHT
-		//glActiveTexture(GL_TEXTURE2);
-		//glBindTexture(GL_TEXTURE_2D, emissionTex);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, emissionTex);
 
 		//float timeVar0to1 = (sin(glfwGetTime()) + 1) / 2;
 
@@ -235,7 +235,12 @@ int main() {
 
 		glm::vec3 lightColor(1.0);
 
-		shaders.setVec3("light.position", lightPos);
+		// spotlight from camera
+		shaders.setVec3("light.position", camera.Position);
+		shaders.setVec3("light.direction", camera.Front);
+		shaders.setFloat("light.cutoff", glm::cos(glm::radians(12.5f)));
+		shaders.setFloat("light.outerCutoff", glm::cos(glm::radians(15.0f)));
+
 		shaders.setVec3("light.ambient", lightColor * glm::vec3(0.2f));
 		shaders.setVec3("light.diffuse", lightColor);
 		shaders.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
@@ -270,8 +275,10 @@ int main() {
 		}
 
 
+
+
 		// light cube
-		
+		/*
 		lightShader.use();
 		lightShader.setVec3("lightColor", lightColor + glm::vec3(0.2f));
 
@@ -289,7 +296,7 @@ int main() {
 
 		glBindVertexArray(lightVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-		
+		*/
 		// show
 		glfwSwapBuffers(window);
 		glfwPollEvents();
