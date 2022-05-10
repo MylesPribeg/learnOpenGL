@@ -1,6 +1,7 @@
 #include <glad/glad.h>	// this is what manages all the function pointers
 #include <GLFW/glfw3.h> // Must be included after glad.h 
 #include <iostream>
+#include <string>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -147,6 +148,12 @@ int main() {
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
+	glm::vec3 pointLightPositions[] = {
+		glm::vec3(0.7f,  0.2f,  2.0f),
+		glm::vec3(2.3f, -3.3f, -4.0f),
+		glm::vec3(-4.0f,  2.0f, -12.0f),
+		glm::vec3(0.0f,  0.0f, -3.0f)
+	};
 
 	unsigned int VAO;
 	glGenVertexArrays(1, &VAO);
@@ -183,6 +190,55 @@ int main() {
 	// depth testing
 	glEnable(GL_DEPTH_TEST);
 
+	// SCENE
+	glm::vec3 lightColor(1.0);
+
+	shaders.use();
+	glBindVertexArray(VAO);
+	
+	shaders.setInt("material.diffuse", 0);
+	shaders.setInt("material.specular", 1);
+	shaders.setInt("material.emissive", 2);
+	shaders.setFloat("material.shininess", 128.0f);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, diffuseTex);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, specularTex);
+	// EMMISIVE TEXTURE DISABLED TO BETTER SEE EFFECTS OF LIGHTING
+	//glActiveTexture(GL_TEXTURE2);
+	//glBindTexture(GL_TEXTURE_2D, emissionTex);
+
+	shaders.setFloat("spotLight.quadratic", 0.032f);
+	shaders.setFloat("spotLight.cutoff", glm::cos(glm::radians(12.5f)));
+	shaders.setFloat("spotLight.outerCutoff", glm::cos(glm::radians(15.0f)));
+
+	shaders.setVec3("spotLight.ambient", lightColor* glm::vec3(0.2f));
+	shaders.setVec3("spotLight.diffuse", lightColor);
+	shaders.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+	shaders.setFloat("spotLight.constant", 1.0f);
+	shaders.setFloat("spotLight.linear", 0.09f);
+
+	// point lights 
+
+	for (int i = 0; i < 4; i++)
+	{
+		std::string n = std::to_string(i);
+		shaders.setVec3(("pointLight[" + n + "].position").c_str(), pointLightPositions[i]);
+		shaders.setVec3(("pointLight[" + n + "].ambient").c_str(), lightColor * glm::vec3(0.2f));
+		shaders.setVec3(("pointLight[" + n + "].diffuse").c_str(), lightColor);
+		shaders.setVec3(("pointLight[" + n + "].specular").c_str(), 1.0f, 1.0f, 1.0f);
+
+		shaders.setFloat(("pointLight[" + n + "].constant").c_str(), 1.0f);
+		shaders.setFloat(("pointLight[" + n + "].linear").c_str(), 0.09f);
+		shaders.setFloat(("pointLight[" + n + "].quadratic").c_str(), 0.032f);
+	}
+
+	// directional light
+	shaders.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+	shaders.setVec3("dirLight.ambient", lightColor* glm::vec3(0.2f));
+	shaders.setVec3("dirLight.diffuse", lightColor);
+	shaders.setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
 
 	// render loop
 	while (!glfwWindowShouldClose(window))
@@ -199,33 +255,15 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-		//transformations
+		// camera transformations
 
 		glm::mat4 view = camera.getViewMatrix();
-		
-		glm::mat4 projection;
-		projection = glm::perspective(glm::radians(camera.Zoom), 
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), 
 			static_cast<float>(scr_width) / static_cast<float>(scr_height), 0.1f, 100.0f);
 
+			
 		//moving light
-		lightPos = glm::vec3(1.0f + cos(glfwGetTime()), 1.0, 1.0f + sin(glfwGetTime()));
-		
-		// cube 1
-
-		shaders.use(); //must use them before setting uniforms
-		shaders.setInt("material.diffuse", 0);
-		shaders.setInt("material.specular", 1);
-		shaders.setInt("material.emissive", 2);
-		shaders.setFloat("material.shininess", 128.0f);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, diffuseTex);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, specularTex);
-		
-		// EMMISIVE TEXTURE DISABLED TO BETTER SEE EFFECTS OF POINT LIGHT
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, emissionTex);
+		//lightPos = glm::vec3(1.0f + cos(glfwGetTime()), 1.0, 1.0f + sin(glfwGetTime()));
 
 		//float timeVar0to1 = (sin(glfwGetTime()) + 1) / 2;
 
@@ -233,25 +271,14 @@ int main() {
 		//	(sin(glfwGetTime() + 3.14) + 1) / 2, 
 		//	(sin((glfwGetTime()) + 1) / 2));
 
-		glm::vec3 lightColor(1.0);
-
-		// spotlight from camera
-		shaders.setVec3("light.position", camera.Position);
-		shaders.setVec3("light.direction", camera.Front);
-		shaders.setFloat("light.cutoff", glm::cos(glm::radians(12.5f)));
-		shaders.setFloat("light.outerCutoff", glm::cos(glm::radians(15.0f)));
-
-		shaders.setVec3("light.ambient", lightColor * glm::vec3(0.2f));
-		shaders.setVec3("light.diffuse", lightColor);
-		shaders.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
-		shaders.setFloat("light.constant", 1.0f);
-		shaders.setFloat("light.linear", 0.09f);
-		shaders.setFloat("light.quadratic", 0.032f);
-
-
+		// uniforms that changer per frame
+		shaders.use();
+		shaders.setVec3("spotLight.position", camera.Position);
+		shaders.setVec3("spotLight.direction", camera.Front);
 		shaders.setVec3("viewPos", camera.Position);
-		
 		shaders.setFloat("timeVar", glfwGetTime());
+
+
 
 		// sending VP matricies
 		int viewLoc = glGetUniformLocation(shaders.ID, "view");
@@ -274,29 +301,29 @@ int main() {
 
 		}
 
-
-
-
 		// light cube
-		/*
+		
 		lightShader.use();
 		lightShader.setVec3("lightColor", lightColor + glm::vec3(0.2f));
+		
+		for (int i = 0; i < 4; i++)
+		{
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, pointLightPositions[i]);
+			model = glm::scale(model, glm::vec3(0.2f));
 
+			int modelLoc = glGetUniformLocation(lightShader.ID, "model");
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+			viewLoc = glGetUniformLocation(lightShader.ID, "view");
+			glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+			projLoc = glGetUniformLocation(lightShader.ID, "projection");
+			glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, lightPos);
-		model = glm::scale(model, glm::vec3(0.2f));
+			glBindVertexArray(lightVAO);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
 
-		int modelLoc = glGetUniformLocation(lightShader.ID, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		viewLoc = glGetUniformLocation(lightShader.ID, "view");
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		projLoc = glGetUniformLocation(lightShader.ID, "projection");
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-		glBindVertexArray(lightVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		*/
+		}
+		
 		// show
 		glfwSwapBuffers(window);
 		glfwPollEvents();
