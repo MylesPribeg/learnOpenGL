@@ -5,10 +5,12 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <assimp/Importer.hpp>
 
 #include "shader.h"
 #include "stb_image/stb_image.h"
 #include "camera.h"
+#include "model.h"
 
 int main();
 
@@ -78,15 +80,15 @@ int main() {
 	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
 	std::cout << "Maximum number of vertex attributes supported: " << nrAttributes << std::endl;
 
-	// loading textures
-	unsigned int diffuseTex = loadTexture("images/container2.png");
-	unsigned int specularTex = loadTexture("images/container2_specular.png");
-	unsigned int emissionTex = loadTexture("images/matrix.jpg");
-
 
 	// SHADERS
 	Shader shaders("vertShader.vert", "lighting.frag");
 	Shader lightShader("vertShader.vert", "light.frag");
+#if 0
+	// loading textures
+	unsigned int diffuseTex = loadTexture("images/container2.png");
+	unsigned int specularTex = loadTexture("images/container2_specular.png");
+	unsigned int emissionTex = loadTexture("images/matrix.jpg");
 
 	// vertices
 	float vertices[] = {
@@ -184,12 +186,13 @@ int main() {
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); 
 	glEnableVertexAttribArray(0);
+#endif
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	// depth testing
 	glEnable(GL_DEPTH_TEST);
-
+#if 0
 	// SCENE
 	glm::vec3 lightColor(1.0);
 
@@ -239,6 +242,9 @@ int main() {
 	shaders.setVec3("dirLight.ambient", lightColor* glm::vec3(0.2f));
 	shaders.setVec3("dirLight.diffuse", lightColor);
 	shaders.setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
+#endif
+
+	Model backpack("models/backpack/backpack.obj");
 
 	// render loop
 	while (!glfwWindowShouldClose(window))
@@ -256,11 +262,28 @@ int main() {
 
 
 		// camera transformations
+		shaders.use();
 
 		glm::mat4 view = camera.getViewMatrix();
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), 
 			static_cast<float>(scr_width) / static_cast<float>(scr_height), 0.1f, 100.0f);
 
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f));
+		
+		// sending VP matricies
+		int viewLoc = glGetUniformLocation(shaders.ID, "view");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		int projLoc = glGetUniformLocation(shaders.ID, "projection");
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		// Sending M matricies
+		int modelLoc = glGetUniformLocation(shaders.ID, "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+		backpack.Draw(shaders);
+
+		/*
 			
 		//moving light
 		//lightPos = glm::vec3(1.0f + cos(glfwGetTime()), 1.0, 1.0f + sin(glfwGetTime()));
@@ -270,7 +293,7 @@ int main() {
 		//glm::vec3 lightColor((sin(glfwGetTime() + 1.7) +1) / 2, 
 		//	(sin(glfwGetTime() + 3.14) + 1) / 2, 
 		//	(sin((glfwGetTime()) + 1) / 2));
-
+		
 		// uniforms that changer per frame
 		shaders.use();
 		shaders.setVec3("spotLight.position", camera.Position);
@@ -280,11 +303,6 @@ int main() {
 
 
 
-		// sending VP matricies
-		int viewLoc = glGetUniformLocation(shaders.ID, "view");
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		int projLoc = glGetUniformLocation(shaders.ID, "projection");
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
 		for (int i = 0; i < 10; i++)
 		{
@@ -323,7 +341,7 @@ int main() {
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		}
-		
+		*/
 		// show
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -383,7 +401,6 @@ void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
 {
 	camera.processMouseScroll(yOffset);
 }
-
 
 static void GLAPIENTRY errorOccurredGL(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
 	const GLchar* message, const void* userParam)

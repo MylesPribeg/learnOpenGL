@@ -47,6 +47,8 @@ struct SpotLight {
 };
 uniform SpotLight spotLight;
 
+uniform sampler2D texture_diffuse1;
+
 uniform float timeVar;
 
 out vec4 FragColor;
@@ -83,7 +85,8 @@ void main()
 		result = result + vec3(texture(material.emissive, TexCoords + vec2(0.0, timeVar)));
 	}
 
-	FragColor = vec4(result, 1.0);
+	//FragColor = vec4(result, 1.0);
+	FragColor = vec4(vec3(texture(texture_diffuse1, TexCoords)), 1.0);
 }
 
 vec3 CalcDirLight(DirLight light, vec3 norm, vec3 viewDir)
