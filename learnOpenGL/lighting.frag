@@ -87,6 +87,7 @@ void main()
 
 	//FragColor = vec4(result, 1.0);
 	FragColor = vec4(vec3(texture(texture_diffuse1, TexCoords)), 1.0);
+	//FragColor = vec4(1.0);
 }
 
 vec3 CalcDirLight(DirLight light, vec3 norm, vec3 viewDir)

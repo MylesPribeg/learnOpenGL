@@ -188,14 +188,14 @@ int main() {
 	glEnableVertexAttribArray(0);
 #endif
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	// depth testing
 	glEnable(GL_DEPTH_TEST);
-#if 0
+
 	// SCENE
 	glm::vec3 lightColor(1.0);
-
+/*
 	shaders.use();
 	glBindVertexArray(VAO);
 	
@@ -211,7 +211,11 @@ int main() {
 	// EMMISIVE TEXTURE DISABLED TO BETTER SEE EFFECTS OF LIGHTING
 	//glActiveTexture(GL_TEXTURE2);
 	//glBindTexture(GL_TEXTURE_2D, emissionTex);
+	*/
 
+	Model backpack("models/backpack/backpack.obj");
+
+	shaders.use();
 	shaders.setFloat("spotLight.quadratic", 0.032f);
 	shaders.setFloat("spotLight.cutoff", glm::cos(glm::radians(12.5f)));
 	shaders.setFloat("spotLight.outerCutoff", glm::cos(glm::radians(15.0f)));
@@ -221,9 +225,8 @@ int main() {
 	shaders.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
 	shaders.setFloat("spotLight.constant", 1.0f);
 	shaders.setFloat("spotLight.linear", 0.09f);
-
 	// point lights 
-
+#if 0
 	for (int i = 0; i < 4; i++)
 	{
 		std::string n = std::to_string(i);
@@ -236,15 +239,15 @@ int main() {
 		shaders.setFloat(("pointLight[" + n + "].linear").c_str(), 0.09f);
 		shaders.setFloat(("pointLight[" + n + "].quadratic").c_str(), 0.032f);
 	}
+#endif
 
 	// directional light
 	shaders.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
 	shaders.setVec3("dirLight.ambient", lightColor* glm::vec3(0.2f));
 	shaders.setVec3("dirLight.diffuse", lightColor);
 	shaders.setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
-#endif
 
-	Model backpack("models/backpack/backpack.obj");
+
 
 	// render loop
 	while (!glfwWindowShouldClose(window))
