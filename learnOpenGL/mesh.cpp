@@ -58,9 +58,12 @@ void Mesh::Draw(Shader& shader)
 
 		// TODO: emissive textures
 
-		shader.setFloat(("material." + name + number).c_str(), i);
+		shader.setInt(("material." + name + number).c_str(), i);
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
+	//TODO: roughness map for this?
+	shader.setFloat("material.shininess", 64.0f);
+
 
 	//draw
 	glBindVertexArray(VAO);

@@ -84,11 +84,11 @@ int main() {
 	// SHADERS
 	Shader shaders("vertShader.vert", "lighting.frag");
 	Shader lightShader("vertShader.vert", "light.frag");
-#if 0
 	// loading textures
-	unsigned int diffuseTex = loadTexture("images/container2.png");
-	unsigned int specularTex = loadTexture("images/container2_specular.png");
-	unsigned int emissionTex = loadTexture("images/matrix.jpg");
+
+	//unsigned int diffuseTex = loadTexture("images/container2.png");
+	//unsigned int specularTex = loadTexture("images/container2_specular.png");
+	//unsigned int emissionTex = loadTexture("images/matrix.jpg");
 
 	// vertices
 	float vertices[] = {
@@ -186,7 +186,6 @@ int main() {
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); 
 	glEnableVertexAttribArray(0);
-#endif
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -226,7 +225,7 @@ int main() {
 	shaders.setFloat("spotLight.constant", 1.0f);
 	shaders.setFloat("spotLight.linear", 0.09f);
 	// point lights 
-#if 0
+#if 1
 	for (int i = 0; i < 4; i++)
 	{
 		std::string n = std::to_string(i);
@@ -286,7 +285,7 @@ int main() {
 
 		backpack.Draw(shaders);
 
-		/*
+	
 			
 		//moving light
 		//lightPos = glm::vec3(1.0f + cos(glfwGetTime()), 1.0, 1.0f + sin(glfwGetTime()));
@@ -306,7 +305,7 @@ int main() {
 
 
 
-
+		/*
 		for (int i = 0; i < 10; i++)
 		{
 			glm::mat4 model = glm::mat4(1.0f);
@@ -321,7 +320,7 @@ int main() {
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		}
-
+		*/
 		// light cube
 		
 		lightShader.use();
@@ -344,7 +343,7 @@ int main() {
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		}
-		*/
+		
 		// show
 		glfwSwapBuffers(window);
 		glfwPollEvents();
