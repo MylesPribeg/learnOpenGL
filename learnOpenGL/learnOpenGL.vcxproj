@@ -166,6 +166,7 @@
   <ItemGroup>
     <None Include="lighting.frag" />
     <None Include="light.frag" />
+    <None Include="singleColor.frag" />
     <None Include="vertShader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

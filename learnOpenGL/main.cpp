@@ -76,14 +76,11 @@ int main() {
 	glViewport(0, 0, scr_width, scr_height);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	
-	int nrAttributes;
-	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
-	std::cout << "Maximum number of vertex attributes supported: " << nrAttributes << std::endl;
-
 
 	// SHADERS
 	Shader shaders("vertShader.vert", "lighting.frag");
 	Shader lightShader("vertShader.vert", "light.frag");
+	Shader singleColor("vertShader.vert", "singleColor.frag");
 	// loading textures
 
 	//unsigned int diffuseTex = loadTexture("images/container2.png");
@@ -191,6 +188,7 @@ int main() {
 
 	// depth testing
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_STENCIL_TEST);
 
 	// SCENE
 	glm::vec3 lightColor(1.0);
@@ -260,7 +258,7 @@ int main() {
 
 		// render
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 
 		// camera transformations
@@ -283,9 +281,32 @@ int main() {
 		int modelLoc = glGetUniformLocation(shaders.ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
+		//outlining
+		// drawing object
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		glStencilMask(0xFF);
 		backpack.Draw(shaders);
 
-	
+		// drawing outline
+		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		glStencilMask(0x00);
+		glDisable(GL_DEPTH_TEST);
+
+		singleColor.use();
+		glm::mat4 scaledModel = model;
+		scaledModel = glm::scale(model, glm::vec3(1.05f));
+		viewLoc = glGetUniformLocation(singleColor.ID, "view");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		projLoc = glGetUniformLocation(singleColor.ID, "projection");
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		modelLoc = glGetUniformLocation(singleColor.ID, "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(scaledModel));
+		backpack.Draw(singleColor);
+		
+		glStencilMask(0xFF);
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		glEnable(GL_DEPTH_TEST);
 			
 		//moving light
 		//lightPos = glm::vec3(1.0f + cos(glfwGetTime()), 1.0, 1.0f + sin(glfwGetTime()));
