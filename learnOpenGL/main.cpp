@@ -85,6 +85,7 @@ int main() {
 
 	unsigned int container2Tex = loadTexture("images/container2.png");
 	unsigned int brickTex = loadTexture("images/wall.jpg");
+	unsigned int grassTex = loadTexture("images/grass.png");
 	//unsigned int specularTex = loadTexture("images/container2_specular.png");
 	//unsigned int emissionTex = loadTexture("images/matrix.jpg");
 
@@ -143,7 +144,23 @@ int main() {
 		-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
 		 5.0f, -0.5f, -5.0f,  2.0f, 2.0f
 	};
+	float quadVertices[] = {
+		 1.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+		-1.0f, -1.0f,  0.0f,  0.0f, 0.0f,
+		-1.0f,  1.0f,  0.0f,  0.0f, 1.0f,
 
+		 1.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+		-1.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+		 1.0f,  1.0f,  0.0f,  1.0f, 1.0f
+	};
+
+
+	std::vector<glm::vec3> vegetation;
+	vegetation.push_back(glm::vec3(-1.5f, 0.0f, -0.48f));
+	vegetation.push_back(glm::vec3(1.5f, 0.0f, 0.51f));
+	vegetation.push_back(glm::vec3(0.0f, 0.0f, 0.7f));
+	vegetation.push_back(glm::vec3(-0.3f, 0.0f, -2.3f));
+	vegetation.push_back(glm::vec3(0.5f, 0.0f, -0.6f));
 
 	unsigned int VAO;
 	glGenVertexArrays(1, &VAO);
@@ -175,6 +192,21 @@ int main() {
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+
+	unsigned int quadVAO, quadVBO;
+	glGenVertexArrays(1, &quadVAO);
+	glBindVertexArray(quadVAO);
+
+	glGenBuffers(1, &quadVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -257,7 +289,6 @@ int main() {
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
 		// draw plane
-		glStencilMask(0x00);
 		glActiveTexture(GL_TEXTURE0);
 		shaders.setInt("tex1", 0);
 		glBindTexture(GL_TEXTURE_2D, brickTex);
@@ -267,10 +298,6 @@ int main() {
 
 
 		//draw box
-		glStencilMask(0xFF);
-		glStencilFunc(GL_ALWAYS, 1, 0xFF);
-		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
 		glActiveTexture(GL_TEXTURE0);
 		shaders.setInt("tex1", 0);
 		glBindTexture(GL_TEXTURE_2D, container2Tex);
@@ -282,35 +309,23 @@ int main() {
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 		
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		// draw quads
+		glBindVertexArray(quadVAO);
+		glBindTexture(GL_TEXTURE_2D, grassTex);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		for (glm::vec3 position : vegetation)
+		{
+			model = glm::mat4(1.0f);
+			model = glm::scale(model, glm::vec3(0.5f));
+			model = glm::translate(model, position);
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
 
-		// draw outlines
-		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-		glStencilMask(0x00);
-		glDisable(GL_DEPTH_TEST);
-
-		singleColor.use();
-		viewLoc = glGetUniformLocation(singleColor.ID, "view");
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		projLoc = glGetUniformLocation(singleColor.ID, "projection");
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-		viewLoc = glGetUniformLocation(singleColor.ID, "view");
-
-		//box2
-		model = glm::scale(model, glm::vec3(1.05f));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-		//box 1
-		model = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.0f, -1.0f));
-		model = glm::scale(model, glm::vec3(1.05f));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-		glStencilMask(0xFF);
-		glStencilFunc(GL_ALWAYS, 1, 0xFF);
-		glEnable(GL_DEPTH_TEST);
 		// show
 		glfwSwapBuffers(window);
 		glfwPollEvents();
