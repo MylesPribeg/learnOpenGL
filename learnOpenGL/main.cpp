@@ -91,49 +91,49 @@ int main() {
 	//unsigned int emissionTex = loadTexture("images/matrix.jpg");
 
 	// vertices
-	float cubeVertices[] = {
-		// positions          // texture Coords
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+	float cubeVertices[] = { // with CCW winding order
+		// Back face
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // Bottom-left
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
+		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f, // bottom-right         
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // bottom-left
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
+		// Front face
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // top-right
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // top-right
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f, // top-left
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
+		// Left face
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-right
+		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-left
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-left
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-left
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-right
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-right
+		// Right face
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-left
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-right
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right         
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-right
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-left
+		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left     
+		// Bottom face
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // top-right
+		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f, // top-left
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-left
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-left
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-right
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // top-right
+		// Top face
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right     
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
+		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f  // bottom-left        
 	};
 	float planeVertices[] = {
 		// positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
@@ -216,12 +216,14 @@ int main() {
 	glEnable(GL_STENCIL_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 
 	// SCENE
 	glm::vec3 lightColor(1.0);
 
-#if 0
 	Model backpack("models/backpack/backpack.obj");
+#if 1
 
 	shaders.use();
 	shaders.setFloat("spotLight.quadratic", 0.032f);
@@ -234,26 +236,26 @@ int main() {
 	shaders.setFloat("spotLight.constant", 1.0f);
 	shaders.setFloat("spotLight.linear", 0.09f);
 	// point lights 
-	for (int i = 0; i < 4; i++)
-	{
-		std::string n = std::to_string(i);
-		shaders.setVec3(("pointLight[" + n + "].position").c_str(), pointLightPositions[i]);
-		shaders.setVec3(("pointLight[" + n + "].ambient").c_str(), lightColor * glm::vec3(0.2f));
-		shaders.setVec3(("pointLight[" + n + "].diffuse").c_str(), lightColor);
-		shaders.setVec3(("pointLight[" + n + "].specular").c_str(), 1.0f, 1.0f, 1.0f);
+	//for (int i = 0; i < 4; i++)
+	//{
+	//	std::string n = std::to_string(i);
+	//	shaders.setVec3(("pointLight[" + n + "].position").c_str(), pointLightPositions[i]);
+	//	shaders.setVec3(("pointLight[" + n + "].ambient").c_str(), lightColor * glm::vec3(0.2f));
+	//	shaders.setVec3(("pointLight[" + n + "].diffuse").c_str(), lightColor);
+	//	shaders.setVec3(("pointLight[" + n + "].specular").c_str(), 1.0f, 1.0f, 1.0f);
 
-		shaders.setFloat(("pointLight[" + n + "].constant").c_str(), 1.0f);
-		shaders.setFloat(("pointLight[" + n + "].linear").c_str(), 0.09f);
-		shaders.setFloat(("pointLight[" + n + "].quadratic").c_str(), 0.032f);
-	}
-#endif
+	//	shaders.setFloat(("pointLight[" + n + "].constant").c_str(), 1.0f);
+	//	shaders.setFloat(("pointLight[" + n + "].linear").c_str(), 0.09f);
+	//	shaders.setFloat(("pointLight[" + n + "].quadratic").c_str(), 0.032f);
+	//}
 
 	// directional light
-	//shaders.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-	//shaders.setVec3("dirLight.ambient", lightColor* glm::vec3(0.2f));
-	//shaders.setVec3("dirLight.diffuse", lightColor);
-	//shaders.setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
+	shaders.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+	shaders.setVec3("dirLight.ambient", lightColor* glm::vec3(0.2f));
+	shaders.setVec3("dirLight.diffuse", lightColor);
+	shaders.setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
 
+#endif
 	//sorting for transparency
 	std::map<float, glm::vec3> sorted;
 	for (int i = 0; i < windows.size(); i++)
@@ -297,46 +299,48 @@ int main() {
 		int modelLoc = glGetUniformLocation(shaders.ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
-		// draw plane
-		glActiveTexture(GL_TEXTURE0);
-		shaders.setInt("tex1", 0);
-		glBindTexture(GL_TEXTURE_2D, brickTex);
+		backpack.Draw(shaders);
 
-		glBindVertexArray(planeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		//// draw plane
+		//glActiveTexture(GL_TEXTURE0);
+		//shaders.setInt("tex1", 0);
+		//glBindTexture(GL_TEXTURE_2D, brickTex);
+
+		//glBindVertexArray(planeVAO);
+		//glDrawArrays(GL_TRIANGLES, 0, 6);
 
 
-		//draw box
-		glActiveTexture(GL_TEXTURE0);
-		shaders.setInt("tex1", 0);
-		glBindTexture(GL_TEXTURE_2D, container2Tex);
+		////draw box
+		//glActiveTexture(GL_TEXTURE0);
+		//shaders.setInt("tex1", 0);
+		//glBindTexture(GL_TEXTURE_2D, container2Tex);
 
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glBindVertexArray(VAO);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
 
-		// box2
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		//// box2
+		//model = glm::mat4(1.0f);
+		//model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
+		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		
-		// draw quads
-		glBindVertexArray(quadVAO);
-		glBindTexture(GL_TEXTURE_2D, grassTex);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		
-		for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin();
-			it != sorted.rend(); ++it)
-		{
-			model = glm::mat4(1.0f);
-			model = glm::scale(model, glm::vec3(0.5f));
-			model = glm::translate(model, it->second);
-			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-			glDrawArrays(GL_TRIANGLES, 0, 6);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		//
+		//// draw quads
+		//glBindVertexArray(quadVAO);
+		//glBindTexture(GL_TEXTURE_2D, grassTex);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		//
+		//for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin();
+		//	it != sorted.rend(); ++it)
+		//{
+		//	model = glm::mat4(1.0f);
+		//	model = glm::scale(model, glm::vec3(0.5f));
+		//	model = glm::translate(model, it->second);
+		//	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		//	glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		}
+		//}
 
 
 		// show
