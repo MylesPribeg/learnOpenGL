@@ -78,7 +78,7 @@ int main() {
 	
 
 	// SHADERS
-	Shader shaders("vertShader.vert", "depthView.frag");
+	Shader shaders("vertShader.vert", "lighting.frag");
 	//Shader lightShader("vertShader.vert", "light.frag");
 	Shader singleColor("vertShader.vert", "singleColor.frag");
 	// loading textures
@@ -180,7 +180,7 @@ int main() {
 
 	// depth testing
 	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_STENCIL_TEST);
+	glEnable(GL_STENCIL_TEST);
 
 	// SCENE
 	glm::vec3 lightColor(1.0);
@@ -256,7 +256,21 @@ int main() {
 		int modelLoc = glGetUniformLocation(shaders.ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
+		// draw plane
+		glStencilMask(0x00);
+		glActiveTexture(GL_TEXTURE0);
+		shaders.setInt("tex1", 0);
+		glBindTexture(GL_TEXTURE_2D, brickTex);
+
+		glBindVertexArray(planeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+
 		//draw box
+		glStencilMask(0xFF);
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
 		glActiveTexture(GL_TEXTURE0);
 		shaders.setInt("tex1", 0);
 		glBindTexture(GL_TEXTURE_2D, container2Tex);
@@ -271,12 +285,32 @@ int main() {
 		
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
-		glActiveTexture(GL_TEXTURE0);
-		shaders.setInt("tex1", 0);
-		glBindTexture(GL_TEXTURE_2D, brickTex);
-		
-		glBindVertexArray(planeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		// draw outlines
+		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		glStencilMask(0x00);
+		glDisable(GL_DEPTH_TEST);
+
+		singleColor.use();
+		viewLoc = glGetUniformLocation(singleColor.ID, "view");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		projLoc = glGetUniformLocation(singleColor.ID, "projection");
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		viewLoc = glGetUniformLocation(singleColor.ID, "view");
+
+		//box2
+		model = glm::scale(model, glm::vec3(1.05f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		//box 1
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.0f, -1.0f));
+		model = glm::scale(model, glm::vec3(1.05f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		glStencilMask(0xFF);
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		glEnable(GL_DEPTH_TEST);
 		// show
 		glfwSwapBuffers(window);
 		glfwPollEvents();
