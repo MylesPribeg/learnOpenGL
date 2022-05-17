@@ -88,12 +88,7 @@ void main()
 	*/
 
 	//FragColor = vec4(result, 1.0);
-	vec4 texColor = texture(tex1, TexCoords);
-	if(texColor.a < 0.1)
-	{
-		discard;
-	}
-	FragColor = texColor;
+	FragColor = texture(tex1, TexCoords);
 }
 
 vec3 CalcDirLight(DirLight light, vec3 norm, vec3 viewDir)

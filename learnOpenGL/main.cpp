@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h> // Must be included after glad.h 
 #include <iostream>
 #include <string>
+#include <map>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -85,7 +86,7 @@ int main() {
 
 	unsigned int container2Tex = loadTexture("images/container2.png");
 	unsigned int brickTex = loadTexture("images/wall.jpg");
-	unsigned int grassTex = loadTexture("images/grass.png");
+	unsigned int grassTex = loadTexture("images/transparent_window.png");
 	//unsigned int specularTex = loadTexture("images/container2_specular.png");
 	//unsigned int emissionTex = loadTexture("images/matrix.jpg");
 
@@ -155,12 +156,12 @@ int main() {
 	};
 
 
-	std::vector<glm::vec3> vegetation;
-	vegetation.push_back(glm::vec3(-1.5f, 0.0f, -0.48f));
-	vegetation.push_back(glm::vec3(1.5f, 0.0f, 0.51f));
-	vegetation.push_back(glm::vec3(0.0f, 0.0f, 0.7f));
-	vegetation.push_back(glm::vec3(-0.3f, 0.0f, -2.3f));
-	vegetation.push_back(glm::vec3(0.5f, 0.0f, -0.6f));
+	std::vector<glm::vec3> windows;
+	windows.push_back(glm::vec3(-1.5f, 0.0f, -0.48f));
+	windows.push_back(glm::vec3(1.5f, 0.0f, 0.51f));
+	windows.push_back(glm::vec3(0.0f, 0.0f, 0.7f));
+	windows.push_back(glm::vec3(-0.3f, 0.0f, -2.3f));
+	windows.push_back(glm::vec3(0.5f, 0.0f, -0.6f));
 
 	unsigned int VAO;
 	glGenVertexArrays(1, &VAO);
@@ -210,9 +211,11 @@ int main() {
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	// depth testing
+	// options
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_STENCIL_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// SCENE
 	glm::vec3 lightColor(1.0);
@@ -251,7 +254,13 @@ int main() {
 	//shaders.setVec3("dirLight.diffuse", lightColor);
 	//shaders.setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
 
-
+	//sorting for transparency
+	std::map<float, glm::vec3> sorted;
+	for (int i = 0; i < windows.size(); i++)
+	{
+		float distance = glm::length(camera.Position - windows[i]);
+		sorted[distance] = windows[i];
+	}
 
 	// render loop
 	while (!glfwWindowShouldClose(window))
@@ -317,14 +326,18 @@ int main() {
 		glBindTexture(GL_TEXTURE_2D, grassTex);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		for (glm::vec3 position : vegetation)
+		
+		for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin();
+			it != sorted.rend(); ++it)
 		{
 			model = glm::mat4(1.0f);
 			model = glm::scale(model, glm::vec3(0.5f));
-			model = glm::translate(model, position);
+			model = glm::translate(model, it->second);
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 			glDrawArrays(GL_TRIANGLES, 0, 6);
+
 		}
+
 
 		// show
 		glfwSwapBuffers(window);
