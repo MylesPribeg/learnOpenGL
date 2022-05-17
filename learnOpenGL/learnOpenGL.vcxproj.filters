@@ -59,5 +59,6 @@
     <None Include="vertShader.vert" />
     <None Include="light.frag" />
     <None Include="singleColor.frag" />
+    <None Include="depthView.frag" />
   </ItemGroup>
 </Project>
