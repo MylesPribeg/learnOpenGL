@@ -60,5 +60,9 @@
     <None Include="light.frag" />
     <None Include="singleColor.frag" />
     <None Include="depthView.frag" />
+    <None Include="quad.vert" />
+    <None Include="quad.frag">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

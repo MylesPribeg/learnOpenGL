@@ -82,6 +82,7 @@ int main() {
 	Shader shaders("vertShader.vert", "lighting.frag");
 	//Shader lightShader("vertShader.vert", "light.frag");
 	Shader singleColor("vertShader.vert", "singleColor.frag");
+	Shader quadShader("quad.vert", "quad.frag");
 	// loading textures
 
 	unsigned int container2Tex = loadTexture("images/container2.png");
@@ -145,24 +146,34 @@ int main() {
 		-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
 		 5.0f, -0.5f, -5.0f,  2.0f, 2.0f
 	};
+	//float quadVertices[] = {
+	//	 1.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+	//	-1.0f, -1.0f,  0.0f,  0.0f, 0.0f,
+	//	-1.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+
+	//	 1.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+	//	-1.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+	//	 1.0f,  1.0f,  0.0f,  1.0f, 1.0f
+	//};
+
 	float quadVertices[] = {
-		 1.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-		-1.0f, -1.0f,  0.0f,  0.0f, 0.0f,
-		-1.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+		// positions   // texCoords
+		-1.0f,  1.0f,  0.0f, 1.0f,
+		-1.0f, -1.0f,  0.0f, 0.0f,
+		 1.0f, -1.0f,  1.0f, 0.0f,
 
-		 1.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-		-1.0f,  1.0f,  0.0f,  0.0f, 1.0f,
-		 1.0f,  1.0f,  0.0f,  1.0f, 1.0f
+		-1.0f,  1.0f,  0.0f, 1.0f,
+		 1.0f, -1.0f,  1.0f, 0.0f,
+		 1.0f,  1.0f,  1.0f, 1.0f
 	};
-
-
+	/*
 	std::vector<glm::vec3> windows;
 	windows.push_back(glm::vec3(-1.5f, 0.0f, -0.48f));
 	windows.push_back(glm::vec3(1.5f, 0.0f, 0.51f));
 	windows.push_back(glm::vec3(0.0f, 0.0f, 0.7f));
 	windows.push_back(glm::vec3(-0.3f, 0.0f, -2.3f));
 	windows.push_back(glm::vec3(0.5f, 0.0f, -0.6f));
-
+	*/
 	unsigned int VAO;
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
@@ -202,27 +213,77 @@ int main() {
 	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
+	/* FOR FUTURE "MIRROR"
+	float rearQuadVerts[] = {
+		// positions   // texCoords
+		-0.5f,  1.0f,  0.0f, 1.0f,
+		-0.5f,  0.8f,  0.0f, 0.0f,
+		 0.5f,  0.8f,  1.0f, 0.0f,
+
+		-0.5f,  1.0f,  0.0f, 1.0f,
+		 0.5f,  0.8f,  1.0f, 0.0f,
+		 0.5f,  1.0f,  1.0f, 1.0f
+	};
+
+	unsigned int rearQuadVAO, rearQuadVBO;
+	glGenVertexArrays(1, &rearQuadVAO);
+	glBindVertexArray(rearQuadVAO);
+	
+	glGenBuffers(1, &rearQuadVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, rearQuadVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(rearQuadVerts), rearQuadVerts, GL_STATIC_DRAW);
+	*/
 
 
+	unsigned int FBO;
+	glGenFramebuffers(1, &FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+	// attaching texture to framebuffer
+	unsigned int frameTex;
+	glGenTextures(1, &frameTex);
+	glBindTexture(GL_TEXTURE_2D, frameTex);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameTex, 0);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		std::cout << "Framebuffer not complete";
+	}
+	 //renderbuffer for stencil and depth
+	unsigned int RBO;
+	glGenRenderbuffers(1, &RBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);
+
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	// options
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_STENCIL_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
+	//glEnable(GL_STENCIL_TEST);
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
 
 	// SCENE
 	glm::vec3 lightColor(1.0);
 
-	Model backpack("models/backpack/backpack.obj");
+	//Model backpack("models/backpack/backpack.obj");
 #if 1
 
 	shaders.use();
@@ -236,18 +297,20 @@ int main() {
 	shaders.setFloat("spotLight.constant", 1.0f);
 	shaders.setFloat("spotLight.linear", 0.09f);
 	// point lights 
-	//for (int i = 0; i < 4; i++)
-	//{
-	//	std::string n = std::to_string(i);
-	//	shaders.setVec3(("pointLight[" + n + "].position").c_str(), pointLightPositions[i]);
-	//	shaders.setVec3(("pointLight[" + n + "].ambient").c_str(), lightColor * glm::vec3(0.2f));
-	//	shaders.setVec3(("pointLight[" + n + "].diffuse").c_str(), lightColor);
-	//	shaders.setVec3(("pointLight[" + n + "].specular").c_str(), 1.0f, 1.0f, 1.0f);
+	/*
+	for (int i = 0; i < 4; i++)
+	{
+		std::string n = std::to_string(i);
+		shaders.setVec3(("pointLight[" + n + "].position").c_str(), pointLightPositions[i]);
+		shaders.setVec3(("pointLight[" + n + "].ambient").c_str(), lightColor * glm::vec3(0.2f));
+		shaders.setVec3(("pointLight[" + n + "].diffuse").c_str(), lightColor);
+		shaders.setVec3(("pointLight[" + n + "].specular").c_str(), 1.0f, 1.0f, 1.0f);
 
-	//	shaders.setFloat(("pointLight[" + n + "].constant").c_str(), 1.0f);
-	//	shaders.setFloat(("pointLight[" + n + "].linear").c_str(), 0.09f);
-	//	shaders.setFloat(("pointLight[" + n + "].quadratic").c_str(), 0.032f);
-	//}
+		shaders.setFloat(("pointLight[" + n + "].constant").c_str(), 1.0f);
+		shaders.setFloat(("pointLight[" + n + "].linear").c_str(), 0.09f);
+		shaders.setFloat(("pointLight[" + n + "].quadratic").c_str(), 0.032f);
+	}
+	*/
 
 	// directional light
 	shaders.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
@@ -257,12 +320,12 @@ int main() {
 
 #endif
 	//sorting for transparency
-	std::map<float, glm::vec3> sorted;
-	for (int i = 0; i < windows.size(); i++)
-	{
-		float distance = glm::length(camera.Position - windows[i]);
-		sorted[distance] = windows[i];
-	}
+	//std::map<float, glm::vec3> sorted;
+	//for (int i = 0; i < windows.size(); i++)
+	//{
+	//	float distance = glm::length(camera.Position - windows[i]);
+	//	sorted[distance] = windows[i];
+	//}
 
 	// render loop
 	while (!glfwWindowShouldClose(window))
@@ -275,6 +338,7 @@ int main() {
 		processInput(window);
 
 		// render
+		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -299,49 +363,65 @@ int main() {
 		int modelLoc = glGetUniformLocation(shaders.ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
-		backpack.Draw(shaders);
+		//backpack.Draw(shaders);
 
 		//// draw plane
-		//glActiveTexture(GL_TEXTURE0);
-		//shaders.setInt("tex1", 0);
-		//glBindTexture(GL_TEXTURE_2D, brickTex);
+		glActiveTexture(GL_TEXTURE0);
+		shaders.setInt("tex1", 0);
+		glBindTexture(GL_TEXTURE_2D, brickTex);
 
-		//glBindVertexArray(planeVAO);
-		//glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(planeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-
+		
 		////draw box
-		//glActiveTexture(GL_TEXTURE0);
-		//shaders.setInt("tex1", 0);
-		//glBindTexture(GL_TEXTURE_2D, container2Tex);
+		glActiveTexture(GL_TEXTURE0);
+		shaders.setInt("tex1", 0);
+		glBindTexture(GL_TEXTURE_2D, container2Tex);
 
-		//glBindVertexArray(VAO);
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		//// box2
-		//model = glm::mat4(1.0f);
-		//model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
-		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
-		//
-		//// draw quads
-		//glBindVertexArray(quadVAO);
-		//glBindTexture(GL_TEXTURE_2D, grassTex);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		//
-		//for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin();
-		//	it != sorted.rend(); ++it)
-		//{
-		//	model = glm::mat4(1.0f);
-		//	model = glm::scale(model, glm::vec3(0.5f));
-		//	model = glm::translate(model, it->second);
-		//	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		//	glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		
+		//draw quad over whole screen
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-		//}
 
+
+		glBindVertexArray(quadVBO);
+		quadShader.use();
+		glDisable(GL_DEPTH_TEST);
+		glBindTexture(GL_TEXTURE_2D, frameTex);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glEnable(GL_DEPTH_TEST);
+		// draw quads
+		/*
+		glBindVertexArray(quadVAO);
+		glBindTexture(GL_TEXTURE_2D, grassTex);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		
+		for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin();
+			it != sorted.rend(); ++it)
+		{
+			model = glm::mat4(1.0f);
+			model = glm::scale(model, glm::vec3(0.5f));
+			model = glm::translate(model, it->second);
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		}
+		*/
 
 		// show
 		glfwSwapBuffers(window);

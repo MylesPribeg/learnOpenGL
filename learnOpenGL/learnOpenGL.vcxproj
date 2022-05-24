@@ -167,6 +167,8 @@
     <None Include="depthView.frag" />
     <None Include="lighting.frag" />
     <None Include="light.frag" />
+    <None Include="quad.frag" />
+    <None Include="quad.vert" />
     <None Include="singleColor.frag" />
     <None Include="vertShader.vert" />
   </ItemGroup>
