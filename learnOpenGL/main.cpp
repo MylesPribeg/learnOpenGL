@@ -81,7 +81,7 @@ int main() {
 	// SHADERS
 	Shader shaders("vertShader.vert", "lighting.frag");
 	//Shader lightShader("vertShader.vert", "light.frag");
-	Shader singleColor("vertShader.vert", "singleColor.frag");
+	Shader singleColor("singleColor.vert", "singleColor.frag");
 	Shader quadShader("quad.vert", "quad.frag");
 	// loading textures
 
@@ -218,15 +218,15 @@ int main() {
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
-	/* FOR FUTURE "MIRROR"
+	
 	float rearQuadVerts[] = {
 		// positions   // texCoords
 		-0.5f,  1.0f,  0.0f, 1.0f,
-		-0.5f,  0.8f,  0.0f, 0.0f,
-		 0.5f,  0.8f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.0f, 0.0f,
+		 0.5f,  0.5f,  1.0f, 0.0f,
 
 		-0.5f,  1.0f,  0.0f, 1.0f,
-		 0.5f,  0.8f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  1.0f, 0.0f,
 		 0.5f,  1.0f,  1.0f, 1.0f
 	};
 
@@ -237,8 +237,11 @@ int main() {
 	glGenBuffers(1, &rearQuadVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, rearQuadVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(rearQuadVerts), rearQuadVerts, GL_STATIC_DRAW);
-	*/
-
+	
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2* sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 	unsigned int FBO;
 	glGenFramebuffers(1, &FBO);
@@ -365,7 +368,7 @@ int main() {
 
 		//backpack.Draw(shaders);
 
-		//// draw plane
+		// draw floor
 		glActiveTexture(GL_TEXTURE0);
 		shaders.setInt("tex1", 0);
 		glBindTexture(GL_TEXTURE_2D, brickTex);
@@ -374,7 +377,7 @@ int main() {
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		
-		////draw box
+		// draw box1
 		glActiveTexture(GL_TEXTURE0);
 		shaders.setInt("tex1", 0);
 		glBindTexture(GL_TEXTURE_2D, container2Tex);
@@ -382,7 +385,7 @@ int main() {
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
-		//// box2
+		// box2
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -394,15 +397,62 @@ int main() {
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-
-
-		glBindVertexArray(quadVBO);
+		glBindVertexArray(quadVAO);
 		quadShader.use();
 		glDisable(GL_DEPTH_TEST);
 		glBindTexture(GL_TEXTURE_2D, frameTex);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glEnable(GL_DEPTH_TEST);
 
+		// drawing reverse scene
+		// drawing to framebuffer
+
+		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		shaders.use();
+		view = camera.getRearViewMatrix();
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+		// draw floor
+		glActiveTexture(GL_TEXTURE0);
+		shaders.setInt("tex1", 0);
+		glBindTexture(GL_TEXTURE_2D, brickTex);
+		glBindVertexArray(planeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+
+		// draw box1
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
+		model = glm::scale(model, glm::vec3(1.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+		glActiveTexture(GL_TEXTURE0);
+		shaders.setInt("tex1", 0);
+		glBindTexture(GL_TEXTURE_2D, container2Tex);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		// box2 
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+				
+		// drawing to screen 
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		// do not clear here
+		glDisable(GL_DEPTH_TEST);
+
+		glBindVertexArray(rearQuadVAO);
+		quadShader.use();
+		glBindTexture(GL_TEXTURE_2D, frameTex);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		
 		glEnable(GL_DEPTH_TEST);
 		// draw quads
 		/*

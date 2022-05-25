@@ -42,6 +42,7 @@ public:
 		float yaw = YAW, float pitch = PITCH);
 	Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
 	glm::mat4 getViewMatrix();
+	glm::mat4 getRearViewMatrix();
 	void processKeyboard(Camera_Movement direction, float deltaTime);
 	void processMouseMovement(float xOffset, float yOffset, GLboolean constrainPitch);
 	void processMouseScroll(float yOffset);

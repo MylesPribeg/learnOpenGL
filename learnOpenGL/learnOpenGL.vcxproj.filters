@@ -64,5 +64,8 @@
     <None Include="quad.frag">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="singleColor.vert">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

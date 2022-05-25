@@ -170,6 +170,7 @@
     <None Include="quad.frag" />
     <None Include="quad.vert" />
     <None Include="singleColor.frag" />
+    <None Include="singleColor.vert" />
     <None Include="vertShader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
