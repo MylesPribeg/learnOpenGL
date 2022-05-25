@@ -164,6 +164,8 @@
     <ClInclude Include="stb_image\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="cubeMap.frag" />
+    <None Include="cubeMap.vert" />
     <None Include="depthView.frag" />
     <None Include="lighting.frag" />
     <None Include="light.frag" />

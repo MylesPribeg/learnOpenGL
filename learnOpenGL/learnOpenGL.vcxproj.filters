@@ -67,5 +67,7 @@
     <None Include="singleColor.vert">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="cubeMap.vert" />
+    <None Include="cubeMap.frag" />
   </ItemGroup>
 </Project>
