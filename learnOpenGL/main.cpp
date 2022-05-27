@@ -85,7 +85,7 @@ int main() {
 	Shader singleColor("shaders/singleColor.vert", "shaders/singleColor.frag");
 	Shader quadShader("shaders/quad.vert", "shaders/quad.frag");
 	Shader skyboxShader("shaders/cubeMap.vert", "shaders/cubeMap.frag");
-	Shader mirrorShader("shaders/mirror.vert", "shaders/mirror.frag");
+	Shader mirrorShader("shaders/mirror.vert", "shaders/glass.frag");
 
 	// loading textures
 
