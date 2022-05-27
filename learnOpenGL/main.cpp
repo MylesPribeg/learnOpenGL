@@ -80,11 +80,12 @@ int main() {
 	
 
 	// SHADERS
-	Shader shaders("vertShader.vert", "lighting.frag");
+	Shader shaders("shaders/vertShader.vert", "shaders/lighting.frag");
 	//Shader lightShader("vertShader.vert", "light.frag");
-	Shader singleColor("singleColor.vert", "singleColor.frag");
-	Shader quadShader("quad.vert", "quad.frag");
-	Shader skyboxShader("cubeMap.vert", "cubeMap.frag");
+	Shader singleColor("shaders/singleColor.vert", "shaders/singleColor.frag");
+	Shader quadShader("shaders/quad.vert", "shaders/quad.frag");
+	Shader skyboxShader("shaders/cubeMap.vert", "shaders/cubeMap.frag");
+	Shader mirrorShader("shaders/mirror.vert", "shaders/mirror.frag");
 
 	// loading textures
 
@@ -107,50 +108,52 @@ int main() {
 	unsigned int cubeMapTexture = loadCubemap(faces);
 
 	// vertices
-	float cubeVertices[] = { // with CCW winding order
-		// Back face
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // Bottom-left
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
-		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f, // bottom-right         
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // bottom-left
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
-		// Front face
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // top-right
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // top-right
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f, // top-left
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
-		// Left face
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-right
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-left
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-left
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-left
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-right
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-right
-		// Right face
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-left
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-right
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right         
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-right
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-left
-		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left     
-		// Bottom face
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // top-right
-		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f, // top-left
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-left
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-left
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-right
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // top-right
-		// Top face
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right     
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f  // bottom-left        
+	float cubeVertices[] = {
+		// positions		// normals			 
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f, 
+		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f, 
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f, 
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f, 
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f, 
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f, 
+
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
 	};
+
+
 	float planeVertices[] = {
 		// positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
 		 5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
@@ -238,14 +241,15 @@ int main() {
 	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
 		
 	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // telling how to interpret vertex data
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); // telling how to interpret vertex data
 	glEnableVertexAttribArray(0);
 
-	// texCoords attribute
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	// normals attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+	
 
-
+#if 0
 	unsigned int planeVAO, planeVBO;
 	glGenVertexArrays(1, &planeVAO);
 	glBindVertexArray(planeVAO);
@@ -271,7 +275,7 @@ int main() {
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-
+#endif
 	// skybox
 	unsigned int skyboxVAO, skyboxVBO;
 	glGenVertexArrays(1, &skyboxVAO);
@@ -329,8 +333,8 @@ int main() {
 	// SCENE
 	glm::vec3 lightColor(1.0);
 
-	//Model backpack("models/backpack/backpack.obj");
-#if 1
+	Model backpack("models/backpack/backpack.obj");
+#if 0
 
 	shaders.use();
 	shaders.setFloat("spotLight.quadratic", 0.032f);
@@ -394,41 +398,46 @@ int main() {
 		model = glm::scale(model, glm::vec3(1.0f));
 		
 
-		//backpack.Draw(shaders);
 
-		shaders.use();
+		mirrorShader.use();
 		// sending VP matricies
-		int viewLoc = glGetUniformLocation(shaders.ID, "view");
+		int viewLoc = glGetUniformLocation(mirrorShader.ID, "view");
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		int projLoc = glGetUniformLocation(shaders.ID, "projection");
+		int projLoc = glGetUniformLocation(mirrorShader.ID, "projection");
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 		// Sending M matricies
-		int modelLoc = glGetUniformLocation(shaders.ID, "model");
+		int modelLoc = glGetUniformLocation(mirrorShader.ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		
-		// draw floor
-		glActiveTexture(GL_TEXTURE0);
-		shaders.setInt("tex1", 0);
-		glBindTexture(GL_TEXTURE_2D, brickTex);
+		//// draw floor
+		//glActiveTexture(GL_TEXTURE0);
+		//shaders.setInt("tex1", 0);
+		//glBindTexture(GL_TEXTURE_2D, brickTex);
 
-		glBindVertexArray(planeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		//glBindVertexArray(planeVAO);
+		//glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		
-		// draw box1h
-		glActiveTexture(GL_TEXTURE0);
-		shaders.setInt("tex1", 0);
-		glBindTexture(GL_TEXTURE_2D, container2Tex);
+		//// draw box1h
+		//glActiveTexture(GL_TEXTURE0);
+		//shaders.setInt("tex1", 0);
+		//glBindTexture(GL_TEXTURE_2D, container2Tex);
 
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glBindVertexArray(VAO);
+		//glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapTexture);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		// box2
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		mirrorShader.setVec3("cameraPos", camera.Position);
 
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		backpack.Draw(mirrorShader);
+
+
+		//model = glm::mat4(1.0f);
+		//model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
+		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		// draw background
 		glDepthMask(GL_FALSE);

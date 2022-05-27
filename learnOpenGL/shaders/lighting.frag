@@ -88,7 +88,7 @@ void main()
 	*/
 
 	//FragColor = vec4(result, 1.0);
-	FragColor = texture(tex1, TexCoords);
+	FragColor = vec4(vec3(texture(tex1, TexCoords)), 1.0);
 	//FragColor = vec4(1.0);
 }
 

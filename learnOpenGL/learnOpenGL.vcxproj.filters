@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Shader Source">
+      <UniqueIdentifier>{7967af14-d07b-44bb-95f0-5b44b414e0da}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -55,19 +58,39 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="lighting.frag" />
-    <None Include="vertShader.vert" />
-    <None Include="light.frag" />
-    <None Include="singleColor.frag" />
-    <None Include="depthView.frag" />
-    <None Include="quad.vert" />
-    <None Include="quad.frag">
-      <Filter>Source Files</Filter>
+    <None Include="shaders\cubeMap.frag">
+      <Filter>Shader Source</Filter>
     </None>
-    <None Include="singleColor.vert">
-      <Filter>Source Files</Filter>
+    <None Include="shaders\cubeMap.vert">
+      <Filter>Shader Source</Filter>
     </None>
-    <None Include="cubeMap.vert" />
-    <None Include="cubeMap.frag" />
+    <None Include="shaders\depthView.frag">
+      <Filter>Shader Source</Filter>
+    </None>
+    <None Include="shaders\light.frag">
+      <Filter>Shader Source</Filter>
+    </None>
+    <None Include="shaders\lighting.frag">
+      <Filter>Shader Source</Filter>
+    </None>
+    <None Include="shaders\quad.frag">
+      <Filter>Shader Source</Filter>
+    </None>
+    <None Include="shaders\quad.vert">
+      <Filter>Shader Source</Filter>
+    </None>
+    <None Include="shaders\singleColor.frag">
+      <Filter>Shader Source</Filter>
+    </None>
+    <None Include="shaders\singleColor.vert">
+      <Filter>Shader Source</Filter>
+    </None>
+    <None Include="shaders\vertShader.vert">
+      <Filter>Shader Source</Filter>
+    </None>
+    <None Include="shaders\mirror.frag">
+      <Filter>Shader Source</Filter>
+    </None>
+    <None Include="shaders\mirror.vert" />
   </ItemGroup>
 </Project>
