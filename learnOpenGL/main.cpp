@@ -370,6 +370,16 @@ int main() {
 
 #endif
 
+	// uniform buffer object
+
+	unsigned int UBO;
+	glGenBuffers(1, &UBO);
+	glBindBuffer(GL_UNIFORM_BUFFER, UBO);
+	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	glBindBufferRange(GL_UNIFORM_BUFFER, 0, UBO, 0, 2 * sizeof(glm::mat4)); //could use glBindBufferBase
+
 	// render loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -389,7 +399,6 @@ int main() {
 		// camera transformations
 
 		glm::mat4 view = camera.getViewMatrix();
-		glm::mat4 skyView = glm::mat4(glm::mat3(camera.getViewMatrix()));
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), 
 			static_cast<float>(scr_width) / static_cast<float>(scr_height), 0.1f, 100.0f);
 
@@ -397,15 +406,12 @@ int main() {
 		model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
 		model = glm::scale(model, glm::vec3(1.0f));
 		
-
+		glBindBuffer(GL_UNIFORM_BUFFER, UBO);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
+		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
 
 		mirrorShader.use();
-		// sending VP matricies
-		int viewLoc = glGetUniformLocation(mirrorShader.ID, "view");
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		int projLoc = glGetUniformLocation(mirrorShader.ID, "projection");
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-		// Sending M matricies
+		
 		int modelLoc = glGetUniformLocation(mirrorShader.ID, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		
@@ -442,11 +448,7 @@ int main() {
 		// draw background
 		glDepthMask(GL_FALSE);
 		skyboxShader.use();
-		viewLoc = glGetUniformLocation(skyboxShader.ID, "view");
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(skyView));
-		projLoc = glGetUniformLocation(skyboxShader.ID, "projection");
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
+		
 		glBindVertexArray(skyboxVAO);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapTexture);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
