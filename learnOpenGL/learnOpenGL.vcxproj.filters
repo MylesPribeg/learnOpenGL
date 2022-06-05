@@ -92,5 +92,11 @@
       <Filter>Shader Source</Filter>
     </None>
     <None Include="shaders\mirror.vert" />
+    <None Include="basic.vert">
+      <Filter>Shader Source</Filter>
+    </None>
+    <None Include="shaders\houses.geom">
+      <Filter>Shader Source</Filter>
+    </None>
   </ItemGroup>
 </Project>

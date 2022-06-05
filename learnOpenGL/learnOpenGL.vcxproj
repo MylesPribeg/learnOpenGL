@@ -164,6 +164,8 @@
     <ClInclude Include="stb_image\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="basic.vert" />
+    <None Include="shaders\houses.geom" />
     <None Include="shaders\glass.frag" />
     <None Include="shaders\cubeMap.frag" />
     <None Include="shaders\cubeMap.vert" />

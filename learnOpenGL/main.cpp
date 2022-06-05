@@ -82,7 +82,7 @@ int main() {
 	// SHADERS
 	Shader shaders("shaders/vertShader.vert", "shaders/lighting.frag");
 	//Shader lightShader("vertShader.vert", "light.frag");
-	Shader singleColor("shaders/singleColor.vert", "shaders/singleColor.frag");
+	Shader singleColor("shaders/singleColor.vert", "shaders/singleColor.frag", "shaders/houses.geom");
 	Shader quadShader("shaders/quad.vert", "shaders/quad.frag");
 	Shader skyboxShader("shaders/cubeMap.vert", "shaders/cubeMap.frag");
 	Shader mirrorShader("shaders/mirror.vert", "shaders/glass.frag");
@@ -230,6 +230,22 @@ int main() {
 		 1.0f, -1.0f,  1.0f
 	};
 
+	float points[] = {
+	-0.5f,  0.5f, // top-left
+	 0.5f,  0.5f, // top-right
+	 0.5f, -0.5f, // bottom-right
+	-0.5f, -0.5f  // bottom-left
+	};
+
+	unsigned int pointsVAO, pointsVBO;
+	glGenVertexArrays(1, &pointsVAO);
+	glBindVertexArray(pointsVAO);
+	glGenBuffers(1, &pointsVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, pointsVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
 	
 	unsigned int VAO;
 	glGenVertexArrays(1, &VAO);
@@ -330,11 +346,11 @@ int main() {
 	//glEnable(GL_CULL_FACE);
 	//glCullFace(GL_BACK);
 
+#if 0
 	// SCENE
 	glm::vec3 lightColor(1.0);
 
 	Model backpack("models/backpack/backpack.obj");
-#if 0
 
 	shaders.use();
 	shaders.setFloat("spotLight.quadratic", 0.032f);
@@ -368,7 +384,6 @@ int main() {
 	shaders.setVec3("dirLight.diffuse", lightColor);
 	shaders.setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
 
-#endif
 
 	// uniform buffer object
 
@@ -378,7 +393,9 @@ int main() {
 	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	glBindBufferRange(GL_UNIFORM_BUFFER, 0, UBO, 0, 2 * sizeof(glm::mat4)); //could use glBindBufferBase
+	//glBindBufferRange(GL_UNIFORM_BUFFER, 0, UBO, 0, 2 * sizeof(glm::mat4)); //could use glBindBufferBase
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, UBO);
+#endif
 
 	// render loop
 	while (!glfwWindowShouldClose(window))
@@ -397,7 +414,7 @@ int main() {
 
 
 		// camera transformations
-
+#if 0
 		glm::mat4 view = camera.getViewMatrix();
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), 
 			static_cast<float>(scr_width) / static_cast<float>(scr_height), 0.1f, 100.0f);
@@ -405,68 +422,10 @@ int main() {
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
 		model = glm::scale(model, glm::vec3(1.0f));
-		
-		glBindBuffer(GL_UNIFORM_BUFFER, UBO);
-		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
-		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
-
-		mirrorShader.use();
-		
-		int modelLoc = glGetUniformLocation(mirrorShader.ID, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		
-		//// draw floor
-		//glActiveTexture(GL_TEXTURE0);
-		//shaders.setInt("tex1", 0);
-		//glBindTexture(GL_TEXTURE_2D, brickTex);
-
-		//glBindVertexArray(planeVAO);
-		//glDrawArrays(GL_TRIANGLES, 0, 6);
-
-		
-		//// draw box1h
-		//glActiveTexture(GL_TEXTURE0);
-		//shaders.setInt("tex1", 0);
-		//glBindTexture(GL_TEXTURE_2D, container2Tex);
-
-		//glBindVertexArray(VAO);
-		//glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapTexture);
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
-
-		// box2
-		mirrorShader.setVec3("cameraPos", camera.Position);
-
-		backpack.Draw(mirrorShader);
-
-
-		//model = glm::mat4(1.0f);
-		//model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
-		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
-
-		// draw background
-		glDepthMask(GL_FALSE);
-		skyboxShader.use();
-		
-		glBindVertexArray(skyboxVAO);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapTexture);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glDepthMask(GL_TRUE);
-
-		/*
-		//draw quad over whole screen
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glBindVertexArray(quadVAO);
-		quadShader.use();
-		glDisable(GL_DEPTH_TEST);
-		glBindTexture(GL_TEXTURE_2D, frameTex);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		glEnable(GL_DEPTH_TEST);
-		*/
+#endif	
+		singleColor.use();
+		glBindVertexArray(pointsVAO);
+		glDrawArrays(GL_POINTS, 0, 4);
 
 		// show
 		glfwSwapBuffers(window);
