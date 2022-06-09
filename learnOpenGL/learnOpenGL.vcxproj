@@ -165,7 +165,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="basic.vert" />
-    <None Include="shaders\houses.geom" />
+    <None Include="shaders\explode.frag" />
+    <None Include="shaders\explode.geom" />
+    <None Include="shaders\explode.vert" />
     <None Include="shaders\glass.frag" />
     <None Include="shaders\cubeMap.frag" />
     <None Include="shaders\cubeMap.vert" />
